@@ -1,0 +1,11 @@
+[package]
+name = "gl_model"
+version = "0.1.0"
+edition = "2018"
+
+[dependencies]
+geo-nd         = "0.1.0"
+# indent-display = "0.1.0"
+indent-display = { path="../indent-display", version="0.1.1" }
+gl       = "0.10.0"
+
