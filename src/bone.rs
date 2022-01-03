@@ -19,8 +19,7 @@ limitations under the License.
 //a Imports
 use geo_nd::matrix;
 
-use crate::Mat4;
-use crate::Transformation;
+use crate::{Mat4, Transformation};
 
 //a Bone
 /// Each bone has a transformation with respect to its parent that is

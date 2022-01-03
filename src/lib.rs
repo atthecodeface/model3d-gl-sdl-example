@@ -136,16 +136,22 @@ mod transformation;
 pub use transformation::Transformation;
 
 mod bone;
-pub use bone::Bone;
 mod bone_set;
+mod bone_pose;
+mod bone_pose_set;
+pub use bone::Bone;
 pub use bone_set::BoneSet;
-//pub mod bone_pose;
+pub use bone_pose::BonePose;
+pub use bone_pose_set::BonePoseSet;
 
 //mod drawable;
-//pub mod buffer;
+mod buffer;
+pub use buffer::ByteBuffer;
+pub use buffer::Data as BufferData;
+pub use buffer::View as BufferView;
+
 //pub mod primitive;
 //pub mod mesh;
 //pub mod object;
 //pub mod shader;
-//pub use buffer::{ByteBuffer};
 //pub use shader::{ShaderClass};
