@@ -32,31 +32,38 @@ The graphical object model is derived from the Khronos glTF 3D
 model/scene description (<https://github.com/KhronosGroup/glTF>),
 without explicit support for animation or cameras.
 
-Underlying the data model is the ByteBuffer trait - any data that is used for the models must support this trait, and implementations are provided for [_] and for Vec<>.
+Underlying the data model is the ByteBuffer trait - any data that is
+used for the models must support this trait, and implementations are
+provided for [_] and for Vec<>.
 
-The base concept for model [Data] is a buffer that is borrowed and that has the ByteBuffer
-trait; the data internally may be floats, ints, etc, or combinations
-thereof - from which one creates [buffer::View]s, or which it is
-itself used as model indices. A View is a subset of the buffer,
-and a single buffer may have many views. A View may, for example, be
-the vertex positions for a set of models; it may be texture coordinates; and so on. The Data
-corresponds on the OpenGL side to an ARRAY_BUFFER or an
-ELEMENT_ARRAY_BUFFER.
+The base concept for model [BufferData] is a buffer that is borrowed
+and that has the [ByteBuffer] trait; the data internally may be
+floats, ints, etc, or combinations thereof - from which one creates
+[BufferView]s, or which it is itself used as model indices. A
+BufferView is a subset of the buffer, and a single buffer may have
+many views. A BufferView may, for example, be the vertex positions for
+a set of models; it may be texture coordinates; and so on. The
+BufferData corresponds on the OpenGL side to an ARRAY_BUFFER or an
+ELEMENT_ARRAY_BUFFER; hence it expects to have a VBO associated with
+it.
 
-The View here is closer to the glTF Accessor - it combines in essence the gltF Accessor and the glTF BufferView.
+The BufferView here is closer to the glTF Accessor - it combines in
+essence the gltF Accessor and the glTF BufferView.
 
-A set of Views are borrowed to describe Vertices, each View providing one
-piece of vertex information. A single view may be used by more than
-one Vertices object. The Vertices object includes also a Data that
-provides the indices. The Vertices object should be considered to be a
-complete descriptor of a model or set of models within a single
-ByteBuffer.
+A set of [BufferView]s are borrowed to describe [Vertices], each
+BufferView providing one piece of vertex information (such as position
+or notmal). A single BufferView may be used by more than one Vertices
+object. The Vertices object includes also a Data that provides the
+indices. The Vertices object should be considered to be a complete
+descriptor of a model or set of models within a single ByteBuffer. In
+OpenGL a Vertices object is bound with a shader description to create
+a VAO.
 
-A Vertices object is then used by a number of `Primitive`s; each of
+A Vertices object is then used by a number of [Primitive]s; each of
 these borrows the Vertices object, and it owns an array of
 Drawables. Each Drawable is an OpenGL element type (such as
 TriangleStrip), a number of indices, and an indication as to which
-index within the Vertices object to use as the first index. The Primitive has a single Material associated with it.
+index within the Vertices object to use as the first index. Each Primitive has a single Material associated with it.
 
 An array of Primitive objects is owned by a Mesh object, which corresponds to
 the glTF Mesh - hence the Primitive object here corresponds to a glTF
@@ -144,16 +151,24 @@ pub use bone_set::BoneSet;
 pub use bone_pose::BonePose;
 pub use bone_pose_set::BonePoseSet;
 
-//mod drawable;
-mod buffer;
-pub use buffer::ByteBuffer;
-pub use buffer::Data as BufferData;
-pub use buffer::View as BufferView;
+mod byte_buffer;
+pub use byte_buffer::ByteBuffer;
+
+mod traits;
+pub use traits::{Texture};
+mod material;
+pub use material::{BaseData, Material, BaseMaterial, TexturedMaterial, PbrMaterial};
 
 mod instantiable;
 mod instance;
 pub use instantiable::Instantiable;
 pub use instance::Instance;
+
+//mod drawable;
+mod buffer_data;
+pub use buffer_data::{BufferClientID, BufferData};
+mod buffer_view;
+pub use buffer_view::BufferView;
 
 //pub mod primitive;
 //pub mod mesh;
