@@ -22,6 +22,7 @@ use geo_nd::matrix;
 use crate::{Mat4, Transformation};
 
 //a Bone
+//tp Bone
 /// Each bone has a transformation with respect to its parent that is
 /// a translation (its origin relative to its parent origin), scale
 /// (in each direction, although a common scale for each coordinates
@@ -76,7 +77,7 @@ impl Bone {
 
     //mp borrow_transformation
     /// Borrow the transformation
-    pub fn borrow_transformation<'a>(&'a self) -> &'a Transformation {
+    pub fn borrow_transformation(&self) -> &Transformation {
         &self.transformation
     }
 
@@ -98,11 +99,27 @@ impl Bone {
         }
         &self.mtb
     }
+
+    //mp borrow_mtb
+    /// Borrow the mtb Matrix (for test mainly)
+    pub fn borrow_mtb(&self) -> &Mat4 {
+        &self.mtb
+    }
+
+    //mp borrow_ptb
+    /// Borrow the ptb Matrix (for test mainly)
+    pub fn borrow_ptb(&self) -> &Mat4 {
+        &self.ptb
+    }
+
 }
 
 //ip Display for Bone
 impl std::fmt::Display for Bone {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
-        write!(f, "Bone {} : {}", self.matrix_index, self.transformation)
+        write!(f, "Bone {} : {} : mtb={:?}", self.matrix_index, self.transformation, self.mtb)
     }
 }
+
+//ip DefaultIndentedDisplay for Bone
+impl indent_display::DefaultIndentedDisplay for Bone {}

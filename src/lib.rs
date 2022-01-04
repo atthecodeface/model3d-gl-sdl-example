@@ -150,8 +150,14 @@ pub use buffer::ByteBuffer;
 pub use buffer::Data as BufferData;
 pub use buffer::View as BufferView;
 
+mod instantiable;
+mod instance;
+pub use instantiable::Instantiable;
+pub use instance::Instance;
+
 //pub mod primitive;
 //pub mod mesh;
 //pub mod object;
+
 //pub mod shader;
 //pub use shader::{ShaderClass};

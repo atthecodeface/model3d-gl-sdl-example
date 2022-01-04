@@ -18,24 +18,38 @@ limitations under the License.
 
 //a Imports
 use geo_nd::matrix;
+use indent_display::{IndentedDisplay, IndentedOptions, Indenter};
 
 use crate::hierarchy;
-use crate::{Mat4, Transformation};
-use crate::{Bone, BoneSet, BonePose};
+use crate::{Mat4};
+use crate::{BoneSet, BonePose};
 
 
 //a BonePoseSet
 //tp BonePoseSet
+/// A pose structure for a complete [BoneSet]
+///
+/// This includes a set of [Mat4] matrix transformations for
+/// mesh-space to animated-model-space
 pub struct BonePoseSet<'a> {
+    /// The BoneSet the pose corresponds to
     bones        : &'a BoneSet,
+    /// A pose for every [Bone] in the [BoneSet]
     poses        : Vec<BonePose<'a>>,
+    /// A mesh-to-animated-model-space matrix transformation for each
+    /// bone
     data         : Vec<Mat4>,
+    /// A monotonic counter to allow updating of the matrices once per
+    /// animation tick
     last_updated : usize,
 }
 
 //ip BonePoseSet
 impl <'a> BonePoseSet<'a> {
     //fp new
+    /// Create a new [BonePoseSet] for a [BoneSet]
+    ///
+    /// The [BoneSet] must have been resolved
     pub fn new(bones:&'a BoneSet) -> Self {
         let mut poses = Vec::new();
         for b in bones.bones.borrow_elements().iter() {
@@ -50,6 +64,9 @@ impl <'a> BonePoseSet<'a> {
     }
 
     //fp derive_animation
+    /// Derive the animation for the current poses of the [BonePoseSet]
+    ///
+    /// This traverses the hierarchy as required
     pub fn derive_animation(&mut self) {
         let mut mat_depth = 0;
         for (_, recipe) in &self.bones.roots {
@@ -72,6 +89,8 @@ impl <'a> BonePoseSet<'a> {
     }
 
     //fp update
+    /// Update the animation matrices if required - depending on the
+    /// last updated tick
     pub fn update(&mut self, tick:usize) {
         if tick != self.last_updated {
             self.last_updated = tick;
@@ -84,6 +103,32 @@ impl <'a> BonePoseSet<'a> {
         }
     }
 }
+
+//ip IndentedDisplay for BonePoseSet
+impl<'a, 'b, Opt: IndentedOptions<'a>> IndentedDisplay<'a, Opt>
+    for BonePoseSet<'b>
+{
+    //mp fmt
+    /// Display for humans with indent
+    fn indent(&self, f: &mut Indenter<'a, Opt>) -> std::fmt::Result {
+        use std::fmt::Write;
+        for (_, recipe) in &self.bones.roots {
+            let mut sub = f.sub();
+            for op in recipe.borrow_ops() {
+                match op {
+                    hierarchy::NodeEnumOp::Push(n,_) => {
+                        sub = sub.sub();
+                    },
+                    _ => {
+                        sub = sub.pop();
+                    }
+                }
+            }
+        }
+        Ok(())
+    }
+}
+
 /*
         pass
     #f hier_debug

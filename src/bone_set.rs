@@ -17,7 +17,7 @@ limitations under the License.
  */
 
 //a Imports
-// use indent_display::{Indenter, NullOptions, DefaultIndentedDisplay};
+use indent_display::{IndentedDisplay, IndentedOptions, NullOptions, Indenter};
 
 use crate::hierarchy;
 use crate::Bone;
@@ -25,6 +25,7 @@ use crate::Mat4;
 use crate::Transformation;
 
 //a BoneSet
+//tp BoneSet
 /// A set of related bones, with one or more roots
 ///
 /// This corresponds to a skeleton (or a number thereof), with each
@@ -39,6 +40,8 @@ pub struct BoneSet {
     /// Max bone index
     pub max_index: usize,
 }
+
+//ip BoneSet
 impl BoneSet {
     //fp new
     /// Create a new set of bones
@@ -159,9 +162,9 @@ impl BoneSet {
                                 .data
                                 .derive_matrices(true, &self.temp_mat4s[mat_depth]);
                         } else {
-                            self.temp_mat4s[mat_depth + 1] = *bones[*n]
+                            self.temp_mat4s[mat_depth] = *bones[*n]
                                 .data
-                                .derive_matrices(false, &self.temp_mat4s[mat_depth]);
+                                .derive_matrices(false, &self.temp_mat4s[mat_depth-1]);
                         }
                         mat_depth += 1;
                     }
@@ -172,20 +175,38 @@ impl BoneSet {
             }
         }
     }
+
+    //fp iter_roots
+    /// Iterate through the root bone indices in the [BoneSet]
     pub fn iter_roots<'z>(&'z self) -> impl Iterator<Item = usize> + '_ {
         self.roots.iter().map(|(n, _)| *n)
     }
+
+    //zz All done
 }
-/*
-    #f hier_debug
-    def hier_debug(self, hier:Hierarchy) -> Hierarchy:
-        hier.add(f"BoneSet {self.roots}")
-        hier.push()
-        for b in self.iter_roots():
-            b.hier_debug(hier)
-            pass
-        hier.pop()
-        return hier
-    #f All done
-    pass
-*/
+
+//ip IndentedDisplay for BoneSet
+impl<'a, Opt: IndentedOptions<'a>> IndentedDisplay<'a, Opt>
+    for BoneSet
+{
+    //mp fmt
+    /// Display for humans with indent
+    fn indent(&self, f: &mut Indenter<'a, Opt>) -> std::fmt::Result {
+        self.bones.indent(f)
+    }
+}
+
+//ip Display for BoneSet
+impl std::fmt::Display for BoneSet
+{
+    //mp fmt
+    /// Display for humans with indent
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        let mut v = Vec::<u8>::new();
+        let mut ind = Indenter::new(&mut v, " ", &NullOptions {});
+        self.indent(&mut ind)?;
+        drop(ind);
+        write!(f, "{}", &String::from_utf8(v).unwrap())
+    }
+}
+

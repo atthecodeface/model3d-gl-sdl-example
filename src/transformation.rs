@@ -5,7 +5,10 @@ use crate::{Mat4, Quat, Vec3};
 
 //a Transformation
 //tp Transformation
-/// A
+/// A transformation corresponds to a translation of a rotation of a
+/// scaling
+///
+/// The rotation here is encoded by a [Quat]ernion
 #[derive(Clone, Copy, Debug)]
 pub struct Transformation {
     translation: Vec3,
@@ -165,7 +168,7 @@ impl std::fmt::Display for Transformation {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
         write!(
             f,
-            "{:?}:{:?}:{:?}",
+            "Transform +{:?}:@{:?}:*{:?}",
             self.translation, self.rotation, self.scale
         )
     }

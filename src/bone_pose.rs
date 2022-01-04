@@ -19,7 +19,6 @@ limitations under the License.
 //a Imports
 use geo_nd::matrix;
 
-use crate::hierarchy;
 use crate::{Mat4, Transformation};
 use crate::{Bone};
 
@@ -104,6 +103,7 @@ impl <'a> BonePose <'a> {
     
     //zz All done
 }
+
 //ip Display for BonePose
 impl <'a> std::fmt::Display for BonePose<'a> {
     fn fmt(&self, f:&mut std::fmt::Formatter) -> Result<(), std::fmt::Error> {
