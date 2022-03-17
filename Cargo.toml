@@ -1,11 +1,12 @@
 [package]
-name = "gl_model"
+name = "ogl_model"
 version = "0.1.0"
 edition = "2018"
 
 [dependencies]
+gl = "0.10.0"
+sdl2 = {version = "0.31.0", features = ["bundled", "static-link"]}
 geo-nd         = "0.1.0"
-# indent-display = "0.1.0"
-indent-display = { path="../indent-display", version="0.1.1" }
-gl       = "0.10.0"
+model3d     = { path="../model3d-rs", version="0.1.0" }
+gl_model    = { path="../gl-model-rs", version="0.1.0" }
 
