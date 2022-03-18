@@ -1,5 +1,5 @@
 use std::ffi::CString;
-use gl_model::{GlShader, GlProgram};
+use gl_model::{GlShader, GlProgram, ShaderClass};
 
 const VERT_SRC : &str = "
 #version 330 core
@@ -7,10 +7,12 @@ const VERT_SRC : &str = "
 layout (location = 0) in vec3 Position;
 in vec3 Normal;
 uniform mat4 uModelMatrix;
+uniform mat4 uViewMatrix;
+uniform mat4 uMeshMatrix;
 out vec3 Normal_frag;
 void main()
 {
-    gl_Position = uModelMatrix * vec4(Position, 1.0);
+    gl_Position = uViewMatrix * uModelMatrix * uMeshMatrix * vec4(Position, 1.0);
     Normal_frag = Normal;
 }
 ";
@@ -54,6 +56,8 @@ fn main() {
     shader_program.add_attr_name("Position", model3d::VertexAttr::Position).unwrap();
     shader_program.add_attr_name("Normal", model3d::VertexAttr::Normal).unwrap();
     shader_program.add_uniform_name("uModelMatrix", gl_model::UniformId::ModelMatrix).unwrap();
+    shader_program.add_uniform_name("uMeshMatrix", gl_model::UniformId::MeshMatrix).unwrap();
+    shader_program.add_uniform_name("uViewMatrix", gl_model::UniformId::ViewMatrix).unwrap();
 
     // Using the set of indices/vertex data defined create primitives (a triangle)
     let mut obj: model3d::Object<gl_model::Renderable> = model3d::Object::new();
@@ -102,6 +106,9 @@ fn main() {
     // main loop
     let mut event_pump = sdl.event_pump().unwrap();
     let mut t : f32 = 0.0;
+    let mut view_transformation = model3d::Transformation::new();
+    let spin = geo_nd::quat::rotate_x(&geo_nd::quat::identity(),0.01);
+    unsafe {gl::Enable(gl::CULL_FACE | gl::DEPTH_TEST)};
     'main: loop {
         for event in event_pump.poll_iter() {
             match event {
@@ -113,14 +120,18 @@ fn main() {
         gl_model::check_errors().unwrap();
 
         unsafe {
-            gl::Clear(gl::COLOR_BUFFER_BIT);
+            gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT);
         }
 
         shader_program.set_used();
+        if let Some(u) = shader_program.uniform(gl_model::UniformId::ViewMatrix) {
+            unsafe {gl::UniformMatrix4fv(u, 1, gl::FALSE, view_transformation.mat4().as_ptr());}
+        }
         shader_instantiable.gl_draw(&instance);
         let v = [1., 1., 0.];
         instance.transformation.translate(&v, 0.01*t.sin());
         t += 0.1;
+        view_transformation.rotate_by(&spin);
 
         gl_model::check_errors().unwrap();
 
