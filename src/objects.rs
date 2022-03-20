@@ -15,7 +15,7 @@ pub fn new(render_context:&mut gl_model::RenderContext) -> model3d::Instantiable
     let mesh = model3d::example_objects::triangle::mesh(v_id, m_id);
     obj.add_component(None, None, mesh);
 
-    gl_model::check_errors().unwrap();
+    gl_model::check_errors().expect("Added mesh to object");
 
     // Create a tetrahedron object with an empty skeleton
     let v_id = obj.add_vertices(vertices.borrow_vertices(1));

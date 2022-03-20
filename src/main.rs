@@ -1,5 +1,4 @@
-use std::ffi::CString;
-use gl_model::{GlShader, GlProgram, ShaderClass};
+use gl_model::{ShaderClass};
 
 mod base_shader;
 mod objects;
@@ -25,10 +24,13 @@ fn main() {
         gl::load_with(|s| video_subsystem.gl_get_proc_address(s) as *const std::os::raw::c_void);
 
     let shader_program = base_shader::compile();
+
+    gl_model::check_errors().expect("Compiled program");
+    
     let mut render_context = gl_model::RenderContext{};
     let instantiable = objects::new(&mut render_context);
 
-    gl_model::check_errors().unwrap();
+    gl_model::check_errors().expect("Created instantiable");
    
     let shader_instantiable = gl_model::ShaderInstantiable::new(&shader_program, &instantiable);
 
@@ -61,7 +63,7 @@ fn main() {
             gl::UniformBlockBinding( shader_program.id(), u as u32, material_gl.gl_buffer());
         }
     }
-    gl_model::check_errors().unwrap();
+    gl_model::check_errors().expect("Bound uniform for material");
 
     // These are not flags
     unsafe {gl::Enable(gl::CULL_FACE)};
