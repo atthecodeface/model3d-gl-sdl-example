@@ -3,8 +3,9 @@ const VERT_SRC : &str = "
 
 layout (location = 0) in vec3 Position;
 in vec3 Normal;
-uniform Material {
+layout(std140) uniform MaterialBaseData {
     vec4 base_color;
+    vec4 mrxx;
 };
 uniform mat4 uModelMatrix;
 uniform mat4 uViewMatrix;
@@ -22,6 +23,10 @@ const FRAG_SRC : &str = "
 
 in vec3 Normal_frag;
 out vec4 Color;
+layout(std140) uniform MaterialBaseData {
+    vec4 base_color;
+    vec4 mrxx;
+};
 
 void main()
 {
@@ -39,5 +44,6 @@ pub fn compile() -> gl_model::GlProgram {
     shader_program.add_uniform_name("uModelMatrix", gl_model::UniformId::ModelMatrix).unwrap();
     shader_program.add_uniform_name("uMeshMatrix", gl_model::UniformId::MeshMatrix).unwrap();
     shader_program.add_uniform_name("uViewMatrix", gl_model::UniformId::ViewMatrix).unwrap();
+    shader_program.add_uniform_buffer_name("MaterialBaseData", 1).unwrap();
     shader_program
 }
