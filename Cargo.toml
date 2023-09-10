@@ -6,7 +6,7 @@ edition = "2018"
 [dependencies]
 gl = "0.10.0"
 sdl2 = {version = "0.31.0", features = ["bundled", "static-link"]}
-geo-nd         = "0.1.0"
-model3d     = { path="../model3d-rs", version="0.1.0" }
-gl_model    = { path="../gl-model-rs", version="0.1.0" }
+geo-nd         = "0.5"
+model3d-rs     = { path="../model3d-rs", version="0.1" }
+gl_model       = { path="../gl-model-rs", version="0.1" }
 
