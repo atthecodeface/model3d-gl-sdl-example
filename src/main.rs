@@ -1,6 +1,8 @@
 mod base_shader;
 mod objects;
 
+use model3d_gl::Gl;
+
 #[derive(Debug, Default)]
 struct Light {
     position: model3d_gl::Vec4,
@@ -66,60 +68,33 @@ fn main() {
     let mut view_transformation = model3d_base::Transformation::new();
     let spin = geo_nd::quat::rotate_x(&geo_nd::quat::identity(), 0.01);
 
-    // let mut material_gl = model3d_gl::GlBuffer::default();
-    // material_gl.uniform_buffer(&[0.0_f32; 8]);
-    // if let Some(u) = shader_program.uniform(model3d_gl::UniformId::Buffer(1)) {
-    // unsafe {
-    // println!("Bind to {}", u);
-    // gl::BindBufferRange(
-    // gl::UNIFORM_BUFFER,
-    // u as u32,
-    // material_gl.gl_buffer(),
-    // 0,  /* offset */
-    // 32, /* size */
-    // ); // sizeof basedata
-    // gl::UniformBlockBinding(shader_program.id(), u as u32, material_gl.gl_buffer());
-    // }
-    // }
-    // model3d_gl::opengl_utils::check_errors().expect("Bound uniform for material");
+    let material_uid = 1;
+    let world_uid = 2;
 
-    // let mut world_gl = model3d_gl::GlBuffer::default();
-    // let mut world_data = [WorldData::default(); 1];
-    // world_data[0].view_matrix[0] = 1.;
-    // world_data[0].view_matrix[5] = 1.;
-    // world_data[0].view_matrix[10] = 1.;
-    // world_data[0].view_matrix[15] = 1.;
-    // world_data[0].lights[0].position = [2., 0., 0., 0.1];
-    // world_data[0].lights[0].color = [1., 0., 0., 0.];
-    // world_data[0].lights[1].position = [-1., 0., 0., 0.1];
-    // world_data[0].lights[1].color = [0., 1., 0., 0.];
-    // world_data[0].lights[2].position = [-1., 0., 0., -1.];
-    // world_data[0].lights[2].color = [0., 0., 1., 0.];
-    // world_gl.uniform_buffer(&world_data);
-    // if let Some(u) = shader_program.uniform(model3d_gl::UniformId::Buffer(2)) {
-    // // 2 is in base_shader the world ub
-    // unsafe {
-    // // Bind a range of gl_buffer to binding point '3'
-    // println!("Bind to {} {:?}", u, world_data.as_ptr());
-    // println!("{:?} {}", world_data, std::mem::size_of::<WorldData>());
-    // gl::UniformBlockBinding(
-    // shader_program.id(),
-    // u as u32,
-    // 3, /* binding point made up by us */
-    // ); //world_gl.gl_buffer());
-    // // Pick the whole of world_data in world_gl buffer as the data for the uniform
-    // gl::BindBufferRange(
-    // gl::UNIFORM_BUFFER,
-    // 3, // binding point made up by us as u32,
-    // world_gl.gl_buffer(),
-    // 0, /* offset */
-    // std::mem::size_of::<WorldData>() as isize,
-    // );
-    // }
-    // } else {
-    // panic!("Could not set world data");
-    // }
-    // model3d_gl::opengl_utils::check_errors().expect("Bound uniform for world");
+    // material data is buffer '1' as per base_shader.rs
+    let material_data = [0.0_f32; 8];
+    let material_gl = model3d
+        .uniform_buffer_create(&material_data, false)
+        .unwrap();
+    model3d.uniform_index_of_range(&material_gl, material_uid, 0, 0);
+    model3d.program_bind_uniform_index(&shader_program, 1, material_uid);
+
+    let mut world_data = [WorldData::default(); 1];
+    world_data[0].view_matrix[0] = 1.;
+    world_data[0].view_matrix[5] = 1.;
+    world_data[0].view_matrix[10] = 1.;
+    world_data[0].view_matrix[15] = 1.;
+    world_data[0].lights[0].position = [2., 0., 0., 0.1];
+    world_data[0].lights[0].color = [1., 0., 0., 0.];
+    world_data[0].lights[1].position = [-1., 0., 0., 0.1];
+    world_data[0].lights[1].color = [0., 1., 0., 0.];
+    world_data[0].lights[2].position = [-1., 0., 0., -1.];
+    world_data[0].lights[2].color = [0., 0., 1., 0.];
+
+    // world data is buffer '2' as per base_shader.rs
+    let world_gl = model3d.uniform_buffer_create(&world_data, true).unwrap();
+    model3d.uniform_index_of_range(&world_gl, world_uid, 0, 0);
+    model3d.program_bind_uniform_index(&shader_program, 2, world_uid);
 
     // These are not flags
     unsafe { gl::Enable(gl::CULL_FACE) };
@@ -156,15 +131,7 @@ fn main() {
         // view_transformation.rotate_by(&spin);
         // world_data[0].view_matrix = view_transformation.mat4();
 
-        // unsafe {
-        // gl::BindBuffer(gl::UNIFORM_BUFFER, world_gl.gl_buffer());
-        // gl::BufferSubData(
-        // gl::UNIFORM_BUFFER,
-        // 0, /* offset in buffer */
-        // std::mem::size_of::<WorldData>() as isize,
-        // world_data.as_ptr() as *const std::os::raw::c_void,
-        // );
-        // }
+        model3d.uniform_buffer_update_data(&world_gl, &world_data, 0);
 
         shader_program.set_used();
         shader_instantiable.gl_draw(&mut model3d, &instance);
