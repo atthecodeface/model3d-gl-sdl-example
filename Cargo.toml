@@ -1,12 +1,11 @@
 [package]
 name = "ogl_model"
-version = "0.1.0"
-edition = "2018"
+version = "0.1.1"
+edition = "2021"
 
 [dependencies]
 gl = "0.10.0"
 sdl2 = {version = "0.31.0", features = ["bundled", "static-link"]}
 geo-nd         = "0.5"
-model3d-rs     = { path="../model3d-rs", version="0.1" }
-gl_model       = { path="../gl-model-rs", version="0.1" }
-
+model3d-base   = { path="../model3d-rs", version="0.2" }
+model3d-gl     = { path="../model3d-gl", version="0.1" }

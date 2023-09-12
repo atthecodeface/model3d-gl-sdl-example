@@ -36,7 +36,8 @@ uniform mat4 uMeshMatrix;
 void main()
 {
     World_position = uModelMatrix * uMeshMatrix * vec4(Position, 1.);
-    gl_Position = world.view_matrix * World_position;
+    //    gl_Position = world.view_matrix * World_position;
+    gl_Position = World_position;
     Normal_frag = Normal;
 }
 ";
@@ -92,27 +93,22 @@ void main()
 ";
 
 //fp compile
-pub fn compile() -> gl_model::GlProgram {
-    let mut shader_program = gl_model::GlProgram::compile_program(&[
-        (gl::VERTEX_SHADER, VERT_SRC),
-        (gl::FRAGMENT_SHADER, FRAG_SRC),
-    ])
-    .unwrap();
-    shader_program
-        .add_attr_name("Position", model3d_rs::VertexAttr::Position)
-        .unwrap();
-    shader_program
-        .add_attr_name("Normal", model3d_rs::VertexAttr::Normal)
-        .unwrap();
-    shader_program
-        .add_uniform_name("uModelMatrix", gl_model::UniformId::ModelMatrix)
-        .unwrap();
-    shader_program
-        .add_uniform_name("uMeshMatrix", gl_model::UniformId::MeshMatrix)
-        .unwrap();
-    shader_program.add_uniform_buffer_name("World", 2).unwrap();
-    shader_program
-        .add_uniform_buffer_name("Material", 1)
-        .unwrap();
-    shader_program
+use model3d_gl::{Gl, GlShaderType, Model3DOpenGL};
+type GlProgram = <Model3DOpenGL as model3d_gl::Gl>::Program;
+pub fn compile_shader_program(model3d: &Model3DOpenGL) -> Result<GlProgram, String> {
+    let frag_shader = model3d.compile_shader(GlShaderType::Fragment, FRAG_SRC)?;
+    let vert_shader = model3d.compile_shader(GlShaderType::Vertex, VERT_SRC)?;
+
+    model3d.link_program(
+        &[&vert_shader, &frag_shader],
+        &[
+            ("Position", model3d_base::VertexAttr::Position),
+            ("Normal", model3d_base::VertexAttr::Normal),
+        ],
+        &[
+            ("uModelMatrix", model3d_gl::UniformId::ModelMatrix),
+            ("uMeshMatrix", model3d_gl::UniformId::MeshMatrix),
+        ],
+        &[("World", 2), ("Material", 1)],
+    )
 }
