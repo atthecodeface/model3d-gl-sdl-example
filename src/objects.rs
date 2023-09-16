@@ -1,17 +1,17 @@
-use model3d_gl::Model3DOpenGL;
+use model3d_gl::Gl;
 
-pub fn new(render_context: &mut Model3DOpenGL) -> model3d_base::Instantiable<Model3DOpenGL> {
+pub fn new<G: Gl>(render_context: &mut G) -> model3d_base::Instantiable<G> {
     let mut vertices = model3d_base::ExampleVertices::new();
     let material = model3d_base::BaseMaterial::rgba((1., 0., 0., 1.));
 
-    let mut obj: model3d_base::Object<Model3DOpenGL> = model3d_base::Object::new();
+    let mut obj: model3d_base::Object<G> = model3d_base::Object::new();
 
     // Using the set of indices/vertex data defined create primitives (a triangle)
     let m_id = obj.add_material(&material);
 
     // Add vertices to the set
-    model3d_base::example_objects::triangle::new::<Model3DOpenGL>(&mut vertices, 0.5);
-    model3d_base::example_objects::tetrahedron::new::<Model3DOpenGL>(&mut vertices, 0.5);
+    model3d_base::example_objects::triangle::new::<G>(&mut vertices, 0.5);
+    model3d_base::example_objects::tetrahedron::new::<G>(&mut vertices, 0.5);
 
     // Create a triangle object with an empty skeleton
     let v_id = obj.add_vertices(vertices.borrow_vertices(0));

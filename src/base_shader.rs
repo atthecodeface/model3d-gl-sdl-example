@@ -93,9 +93,9 @@ void main()
 ";
 
 //fp compile
-use model3d_gl::{Gl, GlShaderType, Model3DOpenGL};
-type GlProgram = <Model3DOpenGL as model3d_gl::Gl>::Program;
-pub fn compile_shader_program(model3d: &Model3DOpenGL) -> Result<GlProgram, String> {
+use model3d_gl::{Gl, GlShaderType};
+
+pub fn compile_shader_program<G: Gl>(model3d: &G) -> Result<<G as Gl>::Program, String> {
     let frag_shader = model3d.compile_shader(GlShaderType::Fragment, FRAG_SRC)?;
     let vert_shader = model3d.compile_shader(GlShaderType::Vertex, VERT_SRC)?;
 

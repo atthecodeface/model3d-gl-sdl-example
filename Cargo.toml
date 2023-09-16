@@ -7,5 +7,5 @@ edition = "2021"
 gl = "0.10.0"
 sdl2 = {version = "0.31.0", features = ["bundled", "static-link"]}
 geo-nd         = "0.5"
-model3d-base   = { path="../model3d-rs", version="0.2" }
-model3d-gl     = { path="../model3d-gl", version="0.1" }
+model3d-base   = { path="../model3d-base", version="0.2" }
+model3d-gl     = { path="../model3d-gl", version="0.1", features=["opengl"] }

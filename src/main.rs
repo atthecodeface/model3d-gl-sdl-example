@@ -1,22 +1,10 @@
 mod base_shader;
+mod model;
 mod objects;
 
 use model3d_gl::Gl;
-
-#[derive(Debug, Default)]
-struct Light {
-    position: model3d_gl::Vec4,
-    color: model3d_gl::Vec4,
-}
-
-#[derive(Debug, Default)]
-#[repr(C)]
-struct WorldData {
-    view_matrix: model3d_gl::Mat4,
-    lights: [Light; 4],
-}
-
 use model3d_gl::Model3DOpenGL;
+
 fn main() {
     let sdl = sdl2::init().unwrap();
     let video_subsystem = sdl.video().unwrap();
@@ -38,19 +26,11 @@ fn main() {
         gl::load_with(|s| video_subsystem.gl_get_proc_address(s) as *const std::os::raw::c_void);
 
     let mut model3d = Model3DOpenGL::new();
-    let shader_program = base_shader::compile_shader_program(&model3d).unwrap();
-    // model3d.use_program(Some(&program));
 
-    model3d_gl::opengl_utils::check_errors().expect("Compiled program");
-
-    let instantiable = objects::new(&mut model3d);
-
-    model3d_gl::opengl_utils::check_errors().expect("Created instantiable");
-
-    let shader_instantiable =
-        model3d_gl::ShaderInstantiable::new(&mut model3d, &shader_program, &instantiable).unwrap();
-
-    let mut instance = instantiable.instantiate();
+    let base = model::Base::new(&mut model3d).unwrap();
+    let instantiables = base.make_instantiable(&mut model3d).unwrap();
+    let mut game_state = model::GameState::new();
+    let mut instances = base.make_instances();
 
     unsafe {
         let (w, h) = window.drawable_size();
@@ -64,37 +44,6 @@ fn main() {
 
     // main loop
     let mut event_pump = sdl.event_pump().unwrap();
-    let mut t: f32 = 0.0;
-    let mut view_transformation = model3d_base::Transformation::new();
-    let spin = geo_nd::quat::rotate_x(&geo_nd::quat::identity(), 0.01);
-
-    let material_uid = 1;
-    let world_uid = 2;
-
-    // material data is buffer '1' as per base_shader.rs
-    let material_data = [0.0_f32; 8];
-    let material_gl = model3d
-        .uniform_buffer_create(&material_data, false)
-        .unwrap();
-    model3d.uniform_index_of_range(&material_gl, material_uid, 0, 0);
-    model3d.program_bind_uniform_index(&shader_program, 1, material_uid);
-
-    let mut world_data = [WorldData::default(); 1];
-    world_data[0].view_matrix[0] = 1.;
-    world_data[0].view_matrix[5] = 1.;
-    world_data[0].view_matrix[10] = 1.;
-    world_data[0].view_matrix[15] = 1.;
-    world_data[0].lights[0].position = [2., 0., 0., 0.1];
-    world_data[0].lights[0].color = [1., 0., 0., 0.];
-    world_data[0].lights[1].position = [-1., 0., 0., 0.1];
-    world_data[0].lights[1].color = [0., 1., 0., 0.];
-    world_data[0].lights[2].position = [-1., 0., 0., -1.];
-    world_data[0].lights[2].color = [0., 0., 1., 0.];
-
-    // world data is buffer '2' as per base_shader.rs
-    let world_gl = model3d.uniform_buffer_create(&world_data, true).unwrap();
-    model3d.uniform_index_of_range(&world_gl, world_uid, 0, 0);
-    model3d.program_bind_uniform_index(&shader_program, 2, world_uid);
 
     // These are not flags
     unsafe { gl::Enable(gl::CULL_FACE) };
@@ -127,19 +76,12 @@ fn main() {
             gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT);
         }
 
-        // Update world_gl.gl_buffer world_data[0] (there is only one)
-        // view_transformation.rotate_by(&spin);
-        // world_data[0].view_matrix = view_transformation.mat4();
-
-        model3d.uniform_buffer_update_data(&world_gl, &world_data, 0);
-
-        shader_program.set_used();
-        shader_instantiable.gl_draw(&mut model3d, &instance);
-        let v = [1., 1., 0.];
-        instance.transformation.translate(&v, 0.01 * t.sin());
-        instance.transformation.rotate_by(&spin);
-        t += 0.05;
-
+        base.update(
+            &mut model3d,
+            &mut game_state,
+            &instantiables,
+            &mut instances,
+        );
         model3d_gl::opengl_utils::check_errors().unwrap();
 
         window.gl_swap_window();
