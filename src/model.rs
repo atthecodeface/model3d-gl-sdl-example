@@ -77,7 +77,7 @@ impl<G: Gl> Base<G> {
         gl.uniform_index_of_range(&world_gl, world_uid, 0, 0);
         gl.program_bind_uniform_index(&shader_program, 2, world_uid);
 
-        let objects = objects::new(gl);
+        let objects = objects::new(gl)?;
         Ok(Self {
             objects,
             shader_program,
@@ -85,6 +85,7 @@ impl<G: Gl> Base<G> {
             world_gl,
         })
     }
+
     //fp make_instantiable
     pub fn make_instantiable<'inst>(
         &'inst self,

@@ -35,10 +35,13 @@ uniform mat4 uMeshMatrix;
 
 void main()
 {
-    World_position = uModelMatrix * uMeshMatrix * vec4(Position, 1.);
-    //    gl_Position = world.view_matrix * World_position;
+    float scale = 0.90;
+    World_position = uModelMatrix * uMeshMatrix * (vec4(scale,scale,scale,1.0)*vec4(Position, 1.));
+    //     gl_Position = world.view_matrix * World_position;
+    //     gl_Position = World_position * vec4(0.1,0.1,0.1,1.0);
+    //         gl_Position = World_position * vec4(10,10,10,1.0);
     gl_Position = World_position;
-    Normal_frag = Normal;
+    Normal_frag = (uModelMatrix * uMeshMatrix * vec4(Normal, 0.)).xyz;
 }
 ";
 
