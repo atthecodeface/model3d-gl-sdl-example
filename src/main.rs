@@ -2,19 +2,8 @@ mod base_shader;
 mod model;
 mod objects;
 
-use model3d_gl::Gl;
 use model3d_gl::Model3DOpenGL;
 
-fn find_sdl_gl_driver() -> Option<u32> {
-    for (index, item) in sdl2::render::drivers().enumerate() {
-        if item.name == "opengl" {
-            eprintln!("Found opengl {index}");
-            return Some(index as u32);
-        }
-    }
-    panic!("Failed to find OpenGL");
-    None
-}
 fn main() {
     let sdl = sdl2::init().unwrap();
     let video_subsystem = sdl.video().unwrap();
@@ -32,8 +21,7 @@ fn main() {
         .unwrap();
 
     let _gl_context = window.gl_create_context().unwrap();
-    let _gl =
-        gl::load_with(|s| video_subsystem.gl_get_proc_address(s) as *const std::os::raw::c_void);
+    gl::load_with(|s| video_subsystem.gl_get_proc_address(s) as *const std::os::raw::c_void);
 
     let mut model3d = Model3DOpenGL::new();
 
@@ -59,7 +47,7 @@ fn main() {
     // unsafe { gl::Enable(gl::CULL_FACE) };
     unsafe { gl::Enable(gl::DEPTH_TEST) };
     model3d_gl::opengl_utils::check_errors().unwrap();
-    let frame = std::sync::Arc::new(std::sync::RwLock::new(0_u32));
+
     'main: loop {
         for event in event_pump.poll_iter() {
             match event {
@@ -73,8 +61,6 @@ fn main() {
                     // But the drawable is NOT the window size it is the window size
                     // modified by Retinaness
                     //                    let (w, h) = window.drawable_size();
-                    let w = w as i32;
-                    let h = h as i32;
                     unsafe { gl::Viewport(0, 0, w, h) };
                 }
                 _ => {}

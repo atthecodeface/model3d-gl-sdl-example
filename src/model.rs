@@ -59,7 +59,7 @@ impl<G: Gl> Base<G> {
         let material_data = [0.0_f32; 8];
         let material_gl = gl.uniform_buffer_create(&material_data, false).unwrap();
         gl.uniform_index_of_range(&material_gl, material_uid, 0, 0);
-        gl.program_bind_uniform_index(&shader_program, 1, material_uid);
+        let _ = gl.program_bind_uniform_index(&shader_program, 1, material_uid);
 
         let mut world_data = [WorldData::default(); 1];
         world_data[0].view_matrix[0] = 1.;
@@ -75,7 +75,7 @@ impl<G: Gl> Base<G> {
 
         let world_gl = gl.uniform_buffer_create(&world_data, true).unwrap();
         gl.uniform_index_of_range(&world_gl, world_uid, 0, 0);
-        gl.program_bind_uniform_index(&shader_program, 2, world_uid);
+        let _ = gl.program_bind_uniform_index(&shader_program, 2, world_uid);
 
         let objects = objects::new(gl)?;
         Ok(Self {
@@ -92,12 +92,12 @@ impl<G: Gl> Base<G> {
         gl: &mut G,
     ) -> Result<Instantiable<'inst, G>, String> {
         let instantiables = ShaderInstantiable::new(gl, &self.shader_program, &self.objects)
-            .map_err(|_| format!("Failed to create shader instantiable"))?;
+            .map_err(|_| "Failed to create shader instantiable".to_string())?;
         Ok(Instantiable::<G> { instantiables })
     }
 
     //fp make_instances
-    pub fn make_instances<'inst>(&'inst self) -> Instances<'inst, G> {
+    pub fn make_instances(&self) -> Instances<'_, G> {
         let instance = self.objects.instantiate();
         Instances { instance }
     }
