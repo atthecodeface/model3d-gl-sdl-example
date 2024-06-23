@@ -35,7 +35,7 @@ uniform mat4 uMeshMatrix;
 
 void main()
 {
-    float scale = 0.90;
+    float scale = 0.001;
     World_position = uModelMatrix * uMeshMatrix * (vec4(scale,scale,scale,1.0)*vec4(Position, 1.));
     //     gl_Position = world.view_matrix * World_position;
     //     gl_Position = World_position * vec4(0.1,0.1,0.1,1.0);

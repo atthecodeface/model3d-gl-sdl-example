@@ -10,15 +10,18 @@ use model3d_gl::Gl;
 // "BarramundiFish.glb", ["0"]
 // "AntiqueCamera.glb", ["0", "1"] (scale 0.1)
 // "Lantern.glb", ["3"] (scale 0.05)
+// ReciprocatingSaw.glb 0,365 scale 0.003
+// "2CylinderEngine.glb", ["0", "81"] scale 0.001
+// "ToyCar.glb", ["0"] scale 0.001
 //
 // Not working
-// "2CylinderEngine.glb", ["0", "81"]
-// "ToyCar.glb", ["0""]
+//
+// Fox is skinned
 // "Fox.glb", ["0", "1"]
-// ReciprocatingSaw.glb 0,365
 // GearboxAssy.glb, 0, 117
 pub fn new<G: Gl>(render_context: &mut G) -> Result<model3d_base::Instantiable<G>, String> {
-    let filename = "DamagedHelmet.glb";
+    // let filename = "DamagedHelmet.glb";
+    let filename = "ToyCar.glb";
     let node_names = ["0"];
     fn buf_reader(
         file: &mut std::fs::File,
